@@ -4,6 +4,8 @@ from PIL import Image, ImageDraw, ImageFont
 SUMI = "#2B2B2B"
 SHU = "#C8442C"
 KINARI = "#F5F1EA"
+BG = "#FFFCF7"
+WHITE = "#FFFFFF"
 USUSHU = "#F6E3DE"
 HAI = "#CFC7BB"
 
@@ -44,7 +46,7 @@ def stars(rating):
 
 
 def draw_card(shop, W, H, path):
-    img = Image.new("RGB", (W, H), KINARI)
+    img = Image.new("RGB", (W, H), BG)
     d = ImageDraw.Draw(img)
     M = 80
     tall = H > 1500
@@ -52,17 +54,17 @@ def draw_card(shop, W, H, path):
     # 上部の墨帯
     band = 240 if tall else 190
     top = 160 if tall else 0
-    d.rectangle([0, top, W, top + band], fill=SUMI)
+    d.rectangle([0, top, W, top + band], fill=SHU)
     pref = shop["prefecture"]
     pf = font(64)
     pw = d.textlength(pref, font=pf)
     cy = top + band / 2
-    d.rectangle([M, cy - 50, M + pw + 60, cy + 50], fill=SHU)
-    d.text((M + 30, cy), pref, font=pf, fill=KINARI, anchor="lm")
+    d.rounded_rectangle([M, cy - 50, M + pw + 60, cy + 50], radius=18, fill=WHITE)
+    d.text((M + 30, cy), pref, font=pf, fill=SHU, anchor="lm")
     sub = "｜".join(x for x in [shop.get("city", ""), shop.get("genre", "")] if x)
     sf = font(40, "Medium")
     sub = (wrap(d, sub, sf, W - M * 2 - pw - 100) or [""])[0]
-    d.text((M + pw + 100, cy), sub, font=sf, fill=HAI, anchor="lm")
+    d.text((M + pw + 100, cy), sub, font=sf, fill=WHITE, anchor="lm")
 
     y = top + band + (90 if tall else 55)
     # キャッチ
@@ -79,7 +81,7 @@ def draw_card(shop, W, H, path):
 
     # 評価ボックス
     box_h = 210 if tall else 180
-    d.rectangle([M, y, W - M, y + box_h], fill=USUSHU)
+    d.rounded_rectangle([M, y, W - M, y + box_h], radius=24, fill=USUSHU)
     d.text((M + 40, y + box_h / 2), f"{shop['rating']:.1f}", font=font(130, "Black"), fill=SHU, anchor="lm")
     sx = M + 340
     d.text((sx, y + 70), stars(shop["rating"]), font=font(56), fill=SHU, anchor="lm")
@@ -89,8 +91,8 @@ def draw_card(shop, W, H, path):
     # 推しポイント
     pfnt = font(46, "Medium")
     for i, pt in enumerate(shop.get("points", [])[:3], 1):
-        d.ellipse([M, y, M + 64, y + 64], fill=SUMI)
-        d.text((M + 32, y + 32), str(i), font=font(38), fill=KINARI, anchor="mm")
+        d.ellipse([M, y, M + 64, y + 64], fill=SHU)
+        d.text((M + 32, y + 32), str(i), font=font(38), fill=WHITE, anchor="mm")
         for j, ln in enumerate(wrap(d, pt, pfnt, W - 2 * M - 100)[:2]):
             d.text((M + 100, y + 32 + j * 60), ln, font=pfnt, fill=SUMI, anchor="lm")
         lines_n = len(wrap(d, pt, pfnt, W - 2 * M - 100)[:2])
