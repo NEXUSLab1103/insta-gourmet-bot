@@ -1,0 +1,52 @@
+name: 下書き作成してLINEに送る
+
+on:
+  schedule:
+    - cron: "13 2 * * *"   # 毎日 11:13（日本時間）
+  workflow_dispatch:
+    inputs:
+      prefecture:
+        description: "県を指定（空欄なら自動）"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 日本語フォントとライブラリを入れる
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk
+          pip install -q -r requirements.txt
+
+      - name: 下書き作成
+        id: gen
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+          PREFECTURE: ${{ github.event.inputs.prefecture }}
+        run: python main.py
+
+      - name: 画像を保存（公開URL化）
+        run: |
+          git config user.name "gourmet-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add posts data
+          git commit -m "draft ${{ steps.gen.outputs.post_id }}"
+          git push
+
+      - name: LINEに送信
+        env:
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
+        run: |
+          sleep 20
+          python notify.py ${{ steps.gen.outputs.post_id }}
