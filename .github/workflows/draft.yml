@@ -24,7 +24,7 @@ jobs:
 
       - name: 日本語フォントとライブラリを入れる
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk
+          sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk fonts-noto-cjk-extra
           pip install -q -r requirements.txt
 
       - name: 下書き作成
