@@ -90,6 +90,9 @@ def draw_card(shop, W, H, path):
         y += box_h + (60 if tall else 45)
 
     # 推しポイント
+    if shop.get("points_title"):
+        d.text((M, y), shop["points_title"], font=font(40), fill=SHU, anchor="lt")
+        y += 70
     pfnt = font(46, "Medium")
     for i, pt in enumerate(shop.get("points", [])[:3], 1):
         d.ellipse([M, y, M + 64, y + 64], fill=SHU)
