@@ -55,7 +55,7 @@ def draw_card(shop, W, H, path):
     band = 240 if tall else 190
     top = 160 if tall else 0
     d.rectangle([0, top, W, top + band], fill=SHU)
-    pref = shop["prefecture"]
+    pref = shop["prefecture"] or "おすすめ"
     pf = font(64)
     pw = d.textlength(pref, font=pf)
     cy = top + band / 2
@@ -80,13 +80,14 @@ def draw_card(shop, W, H, path):
     y += 40 if not tall else 50
 
     # 評価ボックス
-    box_h = 210 if tall else 180
-    d.rounded_rectangle([M, y, W - M, y + box_h], radius=24, fill=USUSHU)
-    d.text((M + 40, y + box_h / 2), f"{shop['rating']:.1f}", font=font(130, "Black"), fill=SHU, anchor="lm")
-    sx = M + 340
-    d.text((sx, y + 70), stars(shop["rating"]), font=font(56), fill=SHU, anchor="lm")
-    d.text((sx, y + 145), f"Googleマップ評価／口コミ{shop['reviews']:,}件", font=font(34, "Medium"), fill=SUMI, anchor="lm")
-    y += box_h + (60 if tall else 45)
+    if shop.get("rating"):
+        box_h = 210 if tall else 180
+        d.rounded_rectangle([M, y, W - M, y + box_h], radius=24, fill=USUSHU)
+        d.text((M + 40, y + box_h / 2), f"{shop['rating']:.1f}", font=font(130, "Black"), fill=SHU, anchor="lm")
+        sx = M + 340
+        d.text((sx, y + 70), stars(shop["rating"]), font=font(56), fill=SHU, anchor="lm")
+        d.text((sx, y + 145), f"Googleマップ評価／口コミ{shop.get('reviews', 0):,}件", font=font(34, "Medium"), fill=SUMI, anchor="lm")
+        y += box_h + (60 if tall else 45)
 
     # 推しポイント
     pfnt = font(46, "Medium")
@@ -101,8 +102,9 @@ def draw_card(shop, W, H, path):
     # フッター
     fy = H - (260 if tall else 60)
     d.line([M, fy - 35, W - M, fy - 35], fill=HAI, width=2)
-    d.text((M, fy), "※評価は投稿時点のGoogleマップより", font=font(30, "Regular"), fill="#7A7268", anchor="lm")
-    if tall:
+    if shop.get("rating"):
+        d.text((M, fy), "※評価は投稿時点のGoogleマップより", font=font(30, "Regular"), fill="#7A7268", anchor="lm")
+    if tall and not shop.get("no_story_cta"):
         d.text((W / 2, fy + 110), "詳しくはフィード投稿で", font=font(44), fill=SHU, anchor="mm")
 
     img.save(path, "JPEG", quality=92)
