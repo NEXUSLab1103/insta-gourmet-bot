@@ -10,7 +10,7 @@ post_id = sys.argv[1]
 post = json.loads((Path(__file__).parent / "posts" / post_id / "post.json").read_text(encoding="utf-8"))
 repo = os.environ["GITHUB_REPOSITORY"]
 base = f"https://raw.githubusercontent.com/{repo}/main/posts/{post_id}"
-feed = f"{base}/feed.jpg"
+feed = f"{base}/{post.get('cover', 'feed.jpg')}"
 
 flex = {
     "type": "bubble",
@@ -20,7 +20,7 @@ flex = {
         "contents": [
             {"type": "text", "text": f"{post['prefecture']}｜{post['genre']}", "size": "xs", "color": "#C8442C"},
             {"type": "text", "text": post["name"], "weight": "bold", "size": "lg", "wrap": True},
-            {"type": "text", "text": f"⭐{post['rating']}（{post['reviews']:,}件）", "size": "sm"},
+            {"type": "text", "text": (f"⭐{post['rating']}（{post['reviews']:,}件）" if post.get('rating') else "Googleマップ評価なし") + (f"｜写真{len(post['photos']) - 1}枚＋まとめ" if post.get('photos') else ""), "size": "sm"},
             {"type": "text", "text": post["trend_reason"], "size": "sm", "wrap": True, "color": "#555555"},
         ],
     },
